@@ -27,6 +27,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var t2 = 0;
+  var text = '';
+  List<int> total = [];
   TextStyle textStyle() {
     return const TextStyle(
       fontSize: 20,
@@ -48,8 +50,8 @@ class _MyAppState extends State<MyApp> {
             cases: jsonCases[i]["cases"], date: jsonCases[i]["date_report"]));
       }
     }
-    //debugPrint("covid.length = ${covid.length}");
-    return covid;
+
+    return covid.reversed.toList();
   }
 
   @override
@@ -62,20 +64,18 @@ class _MyAppState extends State<MyApp> {
             child: Text("Loading..."),
           );
         } else {
+          for (var i = 0; i < snapshot.data.length; i++) {
+            total.add(snapshot.data[i].cases);
+          }
+          t2 = total.reduce((a, b) => a + b);
           return Column(
             children: [
               SizedBox(
-                height: 600,
+                height: 650,
                 child: ListView.builder(
-                  reverse: true,
+                  // reverse: true,
                   itemCount: snapshot.data.length,
                   itemBuilder: (ctx, index) {
-                    var total = 0;
-
-                    for (var i = 0; i < snapshot.data.length; i++) {
-                      total = snapshot.data[i].cases;
-                      t2 += total;
-                    }
                     return Column(
                       children: [
                         Column(
@@ -135,13 +135,15 @@ class _MyAppState extends State<MyApp> {
                       "Total 7 days Cases : ",
                       style: textStyle(),
                     ),
-                    Text(
-                      t2.toString(),
-                      style: textStyle().copyWith(
-                        fontSize: 25,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    snapshot.connectionState == ConnectionState.done
+                        ? Text(
+                            t2.toString(),
+                            style: textStyle().copyWith(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : const Text("0"),
                   ],
                 ),
               )
